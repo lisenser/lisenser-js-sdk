@@ -66,7 +66,7 @@ export interface TrialStatus {
 export async function getLicenseStatus(req: LicenseRequest): Promise<LicenseStatus> {
     const { licenseKey: key, machineId, productId } = req
     const url = `${API_URL}/license/status`
-    const resp = await axios.post<{data: LicenseStatus}>(url, { key, machineId, productId })
+    const resp = await axios.post<{data: LicenseStatus}>(url, { key, machineId, productId }, getHeaders())
 
     return resp.data.data
 }
@@ -78,7 +78,7 @@ export async function getLicenseStatus(req: LicenseRequest): Promise<LicenseStat
 export async function activateLicenseKey(req: LicenseRequest): Promise<LicenseStatus> {
     const { licenseKey: key, machineId, productId } = req
     const url = `${API_URL}/license/activate`
-    const resp = await axios.post<{data: LicenseStatus}>(url, { key, machineId, productId })
+    const resp = await axios.post<{data: LicenseStatus}>(url, { key, machineId, productId }, getHeaders())
 
     return resp.data.data
 }
@@ -90,7 +90,7 @@ export async function activateLicenseKey(req: LicenseRequest): Promise<LicenseSt
  */
 export async function getTrialStatus(productId: string, machineId: string): Promise<TrialStatus> {
     const url = `${API_URL}/trial/status`
-    const resp = await axios.post<{data: TrialStatus}>(url, { machineId, productId })
+    const resp = await axios.post<{data: TrialStatus}>(url, { machineId, productId }, getHeaders())
 
     return resp.data.data
 }
@@ -107,7 +107,23 @@ export type TrialActivationStatus = 'started' | 'not-allowed' | 'conflict'
  */
 export async function startTrial(productId: string, machineId: string): Promise<TrialActivationStatus> {
     const url = `${API_URL}/trial/activate`
-    const resp = await axios.post<{data: TrialActivationStatus}>(url, { machineId, productId })
+    const resp = await axios.post<{data: TrialActivationStatus}>(url, { machineId, productId }, getHeaders())
 
     return resp.data.data
+}
+
+function getHeaders() {
+    if (typeof process === 'undefined') {
+        return {}
+    }
+
+    if (!process.platform) {
+        return {}
+    }
+
+    return {
+        headers: {
+            'User-Agent': `Lisenser JS SDK / ${process.platform}`,
+        }
+    }
 }
