@@ -113,17 +113,21 @@ export async function startTrial(productId: string, machineId: string): Promise<
 }
 
 function getHeaders() {
+    // @ts-ignore
     if (typeof process === 'undefined') {
         return {}
     }
 
-    if (!process.platform) {
+    // @ts-ignore
+    const { platform } = process
+
+    if (!platform) {
         return {}
     }
 
     return {
         headers: {
-            'User-Agent': `Lisenser JS SDK / ${process.platform}`,
+            'User-Agent': `Lisenser JS SDK / ${platform}`,
         }
     }
 }
