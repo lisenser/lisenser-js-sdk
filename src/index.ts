@@ -38,6 +38,11 @@ export interface LicenseStatus {
      * `null` if the license is not set to expire.
      */
     daysToExpiry: number | null
+    /**
+     * indicating whether or not the License has been activated by
+     * a different machine
+     */
+    isConflict?: boolean
 }
 
 /**
@@ -58,6 +63,11 @@ export interface TrialStatus {
      */
     daysToExpiry: number
 }
+
+/**
+ * Possible statuses of trial period activation.
+ */
+export type TrialActivationStatus = 'started' | 'not-allowed' | 'conflict'
 
 /**
  * Returns the current status of a license.
@@ -96,11 +106,6 @@ export async function getTrialStatus(productId: string, machineId: string): Prom
 }
 
 /**
- * Possible statuses of trial period activation.
- */
-export type TrialActivationStatus = 'started' | 'not-allowed' | 'conflict'
-
-/**
  * Activates a trial period.
  * @param productId The ID of the product for which to activate the trial period.
  * @param machineId The machine ID for which to activate the trial period.
@@ -110,6 +115,40 @@ export async function startTrial(productId: string, machineId: string): Promise<
     const resp = await axios.post<{data: TrialActivationStatus}>(url, { machineId, productId }, getHeaders())
 
     return resp.data.data
+}
+
+/**
+ * Requests an OTP code to be sent for license reset.
+ * @param req The license reset request.
+ */
+export async function requestOtpForLicenseReset(productId: string, licenseKey: string): Promise<boolean> {
+    const url = `${API_URL}/license/reset/send-otp`
+    const resp = await axios.post<{data: {sent: boolean}}>(url, { key: licenseKey, productId }, getHeaders())
+
+    return resp.data.data?.sent
+}
+
+/**
+ * Commits a license reset using the provided OTP.
+ * @param req The license reset commit request.
+ */
+export async function resetLicense(otp: string, productId: string, licenseKey: string): Promise<boolean> {
+    const url = `${API_URL}/license/reset/commit`
+    const resp = await axios.post<{data: {reset: boolean}}>(url, { key: licenseKey, productId, otp }, getHeaders())
+
+    return resp.data.data?.reset
+}
+
+/**
+ * Generates a third party token for the given license.
+ * @param req The license request.
+ */
+export async function generate3rdPartyToken(req: LicenseRequest): Promise<string> {
+    const { licenseKey: key, machineId, productId } = req
+    const url = `${API_URL}/3rd-party-token/generate`
+    const resp = await axios.post<{data: {token: string}}>(url, { key, machineId, productId }, getHeaders())
+
+    return resp.data.data.token
 }
 
 function getHeaders() {

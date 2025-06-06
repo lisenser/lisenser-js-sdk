@@ -60,6 +60,7 @@ Properties:
 - isActive (boolean): Indicates whether the license is currently active.
 - status (string): The current status of the license. One of 'expired', 'active', 'invalid', or 'no-key'.
 - daysToExpiry (number | null): The number of days until the license expires, if applicable. null if the license is not set to expire.
+- isConflict (boolean | undefined): Indicates whether the License has been activated by a different machine.
 
 ### TrialStatus
 
@@ -105,3 +106,46 @@ Returns the current status of a trial period.
 
 - productId (string): The ID of the product for which to retrieve the trial status.
 - machineId (string): The machine ID for which to retrieve the trial status.
+
+#### Returns
+
+- Promise<TrialStatus>: The status of the trial period
+
+### requestOtpForLicenseReset(productId: string, licenseKey: string): Promise<boolean>
+
+Requests an OTP code to be sent for license reset.
+
+#### Parameters
+
+- productId (string): The ID of the product.
+- licenseKey (string): The license key to reset.
+
+#### Returns
+
+- Promise<boolean>: Whether the OTP was sent successfully.
+
+### resetLicense(otp: string, productId: string, licenseKey: string): Promise<boolean>
+
+Resets a license using the provided OTP code.
+
+#### Parameters
+
+- otp (string): The OTP code received via email.
+- productId (string): The ID of the product.
+- licenseKey (string): The license key to reset.
+
+#### Returns
+
+- Promise<boolean>: Whether the reset was successful.
+
+### generate3rdPartyToken(req: LicenseRequest): Promise<string>
+
+Generates a third party token for the given license.
+
+#### Parameters
+
+- req (LicenseRequest): The license request.
+
+#### Returns
+
+- Promise<string>: The generated token.
