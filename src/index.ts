@@ -18,6 +18,11 @@ export interface LicenseRequest {
      * The product ID.
      */
     productId: string
+    /**
+     * An inconsequential flag to indicate whether or not this request
+     * is made as polling to check license status rather than a one-off check
+     */
+    polling?: boolean
 }
 
 /**
@@ -43,6 +48,10 @@ export interface LicenseStatus {
      * a different machine
      */
     isConflict?: boolean
+    /**
+     * List of features allowed to this license
+    */
+    features?: {feature: string}[]
 }
 
 /**
@@ -75,7 +84,8 @@ export type TrialActivationStatus = 'started' | 'not-allowed' | 'conflict'
  */
 export async function getLicenseStatus(req: LicenseRequest): Promise<LicenseStatus> {
     const { licenseKey: key, machineId, productId } = req
-    const url = `${API_URL}/license/status`
+    const urlSuffix = req.polling ? '?plg=true' : ''
+    const url = `${API_URL}/license/status${urlSuffix}`
     const resp = await axios.post<{data: LicenseStatus}>(url, { key, machineId, productId }, getHeaders())
 
     return resp.data.data

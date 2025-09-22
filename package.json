@@ -1,6 +1,6 @@
 {
   "name": "lisenser",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Official JavaScript SDK for Lisenser API (https://lisenser.com/)",
   "source": "src/index.ts",
   "main": "dist/main.js",
